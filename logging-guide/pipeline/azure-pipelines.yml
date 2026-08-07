@@ -1,0 +1,98 @@
+# azure-pipelines.yml
+# Lives in the LMKR.Shared.Logging repo. Every merge to main:
+#   1. builds and packs the class library as a NuGet package
+#   2. bumps the version automatically (GitVersion - semantic, based on commit history)
+#   3. pushes it to the internal Azure Artifacts feed
+# From then on, any of the 29 API repos picks up the change just by bumping
+# its <PackageReference Include="LMKR.Shared.Logging" Version="x.y.z" /> -
+# no copy/paste of source between repos, ever.
+
+trigger:
+  branches:
+    include:
+      - main
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+variables:
+  buildConfiguration: 'Release'
+  # Name of the Azure Artifacts feed created for internal shared packages.
+  # Create it once under Azure DevOps -> Artifacts -> "+ Create Feed".
+  feedName: 'LMKR-Shared-Packages'
+
+steps:
+  - task: UseDotNet@2
+    displayName: 'Use .NET 8 SDK'
+    inputs:
+      packageType: 'sdk'
+      version: '8.x'
+
+  # Automatic semantic version from git history/tags - avoids manually
+  # bumping the .csproj version on every merge.
+  - task: gitversion/setup@0
+    displayName: 'Install GitVersion'
+    inputs:
+      versionSpec: '5.x'
+
+  - task: gitversion/execute@0
+    displayName: 'Determine version'
+
+  - task: DotNetCoreCLI@2
+    displayName: 'Restore'
+    inputs:
+      command: 'restore'
+      projects: 'src/LMKR.Shared.Logging/LMKR.Shared.Logging.csproj'
+      # Only needed if this repo itself also depends on another internal feed package.
+      feedsToUse: 'select'
+      vstsFeed: '$(feedName)'
+
+  - task: DotNetCoreCLI@2
+    displayName: 'Build'
+    inputs:
+      command: 'build'
+      projects: 'src/LMKR.Shared.Logging/LMKR.Shared.Logging.csproj'
+      arguments: '--configuration $(buildConfiguration)'
+
+  - task: DotNetCoreCLI@2
+    displayName: 'Pack'
+    inputs:
+      command: 'pack'
+      packagesToPack: 'src/LMKR.Shared.Logging/LMKR.Shared.Logging.csproj'
+      configuration: '$(buildConfiguration)'
+      nobuild: true
+      versioningScheme: 'byEnvVar'
+      versionEnvVar: 'GitVersion.SemVer'
+
+  - task: NuGetAuthenticate@1
+    displayName: 'Authenticate to Azure Artifacts'
+
+  - task: DotNetCoreCLI@2
+    displayName: 'Push to internal feed'
+    inputs:
+      command: 'push'
+      packagesToPush: '$(Build.ArtifactStagingDirectory)/**/*.nupkg;!$(Build.ArtifactStagingDirectory)/**/*.symbols.nupkg'
+      nuGetFeedType: 'internal'
+      publishVstsFeed: '$(feedName)'
+      allowPackageConflicts: false
+
+# ---------------------------------------------------------------------------
+# One-time setup each of the 29 API repos needs (not part of this pipeline):
+#
+# 1. Add a nuget.config at the repo root pointing at the same feed:
+#
+#    <configuration>
+#      <packageSources>
+#        <add key="LMKR-Shared-Packages" value="https://pkgs.dev.azure.com/<org>/<project>/_packaging/LMKR-Shared-Packages/nuget/v3/index.json" />
+#      </packageSources>
+#    </configuration>
+#
+# 2. Reference the package as normal:
+#
+#    <PackageReference Include="LMKR.Shared.Logging" Version="1.2.0" />
+#
+# 3. In each service's own CI pipeline, add a NuGetAuthenticate@1 task before
+#    restore so the build agent can pull from the internal feed.
+#
+# Bumping the Version in step 2 (a one-line PR) is the "update" step for
+# that service - there is no source to merge or copy.

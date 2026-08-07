@@ -1,0 +1,33 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2012/06/nuspec.xsd">
+  <metadata>
+    <id>LMKR.Shared.Logging</id>
+    <version>1.0.0</version>
+    <authors>LMKR - Platform Engineering</authors>
+    <description>Shared Serilog + request/response logging middleware for all LMKR microservices.</description>
+    <repository type="git" />
+    <dependencies>
+      <group targetFramework="net8.0">
+        <dependency id="Microsoft.Data.SqlClient" version="5.2.1" exclude="Build,Analyzers" />
+        <dependency id="Microsoft.IO.RecyclableMemoryStream" version="3.0.1" exclude="Build,Analyzers" />
+        <dependency id="Serilog.AspNetCore" version="8.0.1" exclude="Build,Analyzers" />
+        <dependency id="Serilog.Enrichers.Environment" version="2.3.0" exclude="Build,Analyzers" />
+        <dependency id="Serilog.Enrichers.Thread" version="3.1.0" exclude="Build,Analyzers" />
+        <dependency id="Serilog.Settings.Configuration" version="8.0.0" exclude="Build,Analyzers" />
+        <dependency id="Serilog.Sinks.ApplicationInsights" version="4.0.0" exclude="Build,Analyzers" />
+        <dependency id="Serilog.Sinks.Console" version="5.0.1" exclude="Build,Analyzers" />
+        <dependency id="Serilog.Sinks.Elasticsearch" version="10.0.0" exclude="Build,Analyzers" />
+        <dependency id="Serilog.Sinks.File" version="5.0.0" exclude="Build,Analyzers" />
+        <dependency id="Serilog.Sinks.Seq" version="8.0.0" exclude="Build,Analyzers" />
+      </group>
+    </dependencies>
+    <frameworkReferences>
+      <group targetFramework="net8.0">
+        <frameworkReference name="Microsoft.AspNetCore.App" />
+      </group>
+    </frameworkReferences>
+  </metadata>
+  <files>
+    <file src="C:\Users\HJHussain\Downloads\LMKR.Shared.Logging-deliverable\logging-guide\src\LMKR.Shared.Logging\bin\Debug\net8.0\LMKR.Shared.Logging.dll" target="lib\net8.0\LMKR.Shared.Logging.dll" />
+  </files>
+</package>

@@ -1,7 +1,0 @@
-D:\logging-guide\src\LMKR.Shared.Logging\LMKR.Shared.Logging.Api\obj\Debug\net8.0\LMKR.Shared.Logging.Api.csproj.AssemblyReference.cache
-D:\logging-guide\src\LMKR.Shared.Logging\LMKR.Shared.Logging.Api\obj\Debug\net8.0\rpswa.dswa.cache.json
-D:\logging-guide\src\LMKR.Shared.Logging\LMKR.Shared.Logging.Api\obj\Debug\net8.0\LMKR.Shared.Logging.Api.GeneratedMSBuildEditorConfig.editorconfig
-D:\logging-guide\src\LMKR.Shared.Logging\LMKR.Shared.Logging.Api\obj\Debug\net8.0\LMKR.Shared.Logging.Api.AssemblyInfoInputs.cache
-D:\logging-guide\src\LMKR.Shared.Logging\LMKR.Shared.Logging.Api\obj\Debug\net8.0\LMKR.Shared.Logging.Api.AssemblyInfo.cs
-D:\logging-guide\src\LMKR.Shared.Logging\LMKR.Shared.Logging.Api\obj\Debug\net8.0\LMKR.Shared.Logging.Api.csproj.CoreCompileInputs.cache
-D:\logging-guide\src\LMKR.Shared.Logging\LMKR.Shared.Logging.Api\obj\Debug\net8.0\LMKR.Shared.Logging.Api.MvcApplicationPartsAssemblyInfo.cache
