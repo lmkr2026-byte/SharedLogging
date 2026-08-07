@@ -10,3 +10,16 @@ C:\Users\HJHussain\Downloads\LMKR.Shared.Logging-deliverable\logging-guide\src\L
 C:\Users\HJHussain\Downloads\LMKR.Shared.Logging-deliverable\logging-guide\src\LMKR.Shared.Logging\obj\Debug\net8.0\refint\LMKR.Shared.Logging.dll
 C:\Users\HJHussain\Downloads\LMKR.Shared.Logging-deliverable\logging-guide\src\LMKR.Shared.Logging\obj\Debug\net8.0\LMKR.Shared.Logging.pdb
 C:\Users\HJHussain\Downloads\LMKR.Shared.Logging-deliverable\logging-guide\src\LMKR.Shared.Logging\obj\Debug\net8.0\ref\LMKR.Shared.Logging.dll
+D:\SharedLogs\logging-guide\src\LMKR.Shared.Logging\obj\Debug\net8.0\LMKR.Shared.Logging.csproj.AssemblyReference.cache
+D:\SharedLogs\logging-guide\src\LMKR.Shared.Logging\obj\Debug\net8.0\LMKR.Shared.Logging.GeneratedMSBuildEditorConfig.editorconfig
+D:\SharedLogs\logging-guide\src\LMKR.Shared.Logging\obj\Debug\net8.0\LMKR.Shared.Logging.AssemblyInfoInputs.cache
+D:\SharedLogs\logging-guide\src\LMKR.Shared.Logging\obj\Debug\net8.0\LMKR.Shared.Logging.AssemblyInfo.cs
+D:\SharedLogs\logging-guide\src\LMKR.Shared.Logging\obj\Debug\net8.0\LMKR.Shared.Logging.csproj.CoreCompileInputs.cache
+D:\SharedLogs\logging-guide\src\LMKR.Shared.Logging\obj\Debug\net8.0\LMKR.Shared.Logging.sourcelink.json
+D:\SharedLogs\logging-guide\src\LMKR.Shared.Logging\obj\Debug\net8.0\LMKR.Shared.Logging.dll
+D:\SharedLogs\logging-guide\src\LMKR.Shared.Logging\obj\Debug\net8.0\refint\LMKR.Shared.Logging.dll
+D:\SharedLogs\logging-guide\src\LMKR.Shared.Logging\obj\Debug\net8.0\LMKR.Shared.Logging.pdb
+D:\SharedLogs\logging-guide\src\LMKR.Shared.Logging\bin\Debug\net8.0\LMKR.Shared.Logging.deps.json
+D:\SharedLogs\logging-guide\src\LMKR.Shared.Logging\bin\Debug\net8.0\LMKR.Shared.Logging.dll
+D:\SharedLogs\logging-guide\src\LMKR.Shared.Logging\bin\Debug\net8.0\LMKR.Shared.Logging.pdb
+D:\SharedLogs\logging-guide\src\LMKR.Shared.Logging\obj\Debug\net8.0\ref\LMKR.Shared.Logging.dll
