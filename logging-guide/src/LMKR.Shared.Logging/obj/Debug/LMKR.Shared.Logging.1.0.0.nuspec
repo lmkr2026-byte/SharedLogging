@@ -5,7 +5,7 @@
     <version>1.0.0</version>
     <authors>LMKR - Platform Engineering</authors>
     <description>Shared Serilog + request/response logging middleware for all LMKR microservices.</description>
-    <repository type="git" commit="19e81686f01c7e11578d82f9ca102e50435e7f90" />
+    <repository type="git" commit="bfdb09812c4a5f839201a12ea9187f98a1d55013" />
     <dependencies>
       <group targetFramework="net8.0">
         <dependency id="FluentValidation" version="12.1.1" exclude="Build,Analyzers" />
