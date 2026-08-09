@@ -14,8 +14,9 @@ namespace LMKR.Shared.Logging.Extensions
         /// </summary>
         public static IServiceCollection AddSharedLogging(this IServiceCollection services, IConfiguration configuration)
         {
-            services.Configure<SharedLoggingOptions>(configuration.GetSection(SharedLoggingOptions.SectionName));
-            services.AddScoped<IApiLoggingRepository, ApiLoggingRepository>();
+            var logsSection = configuration.GetSection(SharedLoggingOptions.SectionName);
+            services.Configure<SharedLoggingOptions>(logsSection);
+            services.AddTransient<IApiLoggingRepository, ApiLoggingRepository>();
             return services;
         }
     }

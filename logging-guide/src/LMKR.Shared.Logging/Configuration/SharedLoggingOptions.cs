@@ -15,11 +15,6 @@ namespace LMKR.Shared.Logging.Configuration
         /// and still be filtered individually.</summary>
         public string ServiceName { get; set; } = string.Empty;
 
-        /// <summary>Optional override of the destination table name used by the
-        /// shared logging stored procedure. Leave empty to use the default per-service
-        /// table configured in the central logging DB.</summary>
-        public string TargetTable { get; set; } = string.Empty;
-
         /// <summary>Named connection string (in ConnectionStrings section) that
         /// points at the central logging database.</summary>
         public string ConnectionStringName { get; set; } = "ApisLogsManagement";
