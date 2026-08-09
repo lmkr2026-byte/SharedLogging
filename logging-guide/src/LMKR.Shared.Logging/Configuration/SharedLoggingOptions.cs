@@ -8,7 +8,7 @@ namespace LMKR.Shared.Logging.Configuration
     /// </summary>
     public class SharedLoggingOptions
     {
-        public const string SectionName = "SharedLogging";
+        public const string SectionName = "Logging";
 
         /// <summary>Logical name of the calling service, e.g. "ParcelManagement.API".
         /// Stamped on every log row/entry so 29 services can share one table/index
@@ -22,6 +22,10 @@ namespace LMKR.Shared.Logging.Configuration
         public bool HttpRequestLogging { get; set; } = true;
 
         public bool HttpResponseLogging { get; set; } = true;
+
+        public bool GrpcRequestLogging { get; set; } = true;
+
+        public bool GrpcResponseLogging { get; set; } = true;
 
         /// <summary>Log request/response bodies. Turn off per-service for
         /// endpoints carrying large payloads or sensitive data.</summary>
