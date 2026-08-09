@@ -53,6 +53,7 @@ namespace LMKR.Shared.Logging.Middleware
             var model = new ApiLogModel
             {
                 ServiceName = _options.ServiceName,
+                TargetTable = _options.TargetTable,
                 CorrelationId = correlationId,
                 ClientId = clientId,
                 APIMethod = context.Request.Method,
@@ -61,6 +62,15 @@ namespace LMKR.Shared.Logging.Middleware
                 UserAgent = context.Request.Headers["User-Agent"].ToString(),
                 CreatedBy = 0
             };
+
+            // Allow per-request overrides from headers (useful when middleware is shared
+            // across multiple services or forwarded through gateways). Headers are
+            // optional and take precedence over configured options when present.
+            var headerService = context.Request.Headers["X-Service-Name"].FirstOrDefault();
+            if (!string.IsNullOrWhiteSpace(headerService)) model.ServiceName = headerService!;
+
+            var headerTable = context.Request.Headers["X-Target-Table"].FirstOrDefault();
+            if (!string.IsNullOrWhiteSpace(headerTable)) model.TargetTable = headerTable!;
 
             var stopwatch = Stopwatch.StartNew();
 

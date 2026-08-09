@@ -48,6 +48,7 @@ namespace LMKR.Shared.Logging.Repositories
                 command.Parameters.Add(new SqlParameter("@Action", SqlDbType.VarChar, 10) { Value = action });
                 command.Parameters.Add(new SqlParameter("@Id", SqlDbType.BigInt) { Value = model.Id == 0 ? DBNull.Value : model.Id });
                 command.Parameters.Add(new SqlParameter("@ServiceName", SqlDbType.NVarChar, 100) { Value = model.ServiceName });
+                command.Parameters.Add(new SqlParameter("@ServiceName", SqlDbType.NVarChar, 100) { Value = model.target });
                 command.Parameters.Add(new SqlParameter("@CorrelationId", SqlDbType.NVarChar, 100) { Value = model.CorrelationId });
                 command.Parameters.Add(new SqlParameter("@ClientId", SqlDbType.NVarChar, 100) { Value = (object?)model.ClientId ?? DBNull.Value });
                 command.Parameters.Add(new SqlParameter("@APIMethod", SqlDbType.NVarChar, 10) { Value = (object?)model.APIMethod ?? DBNull.Value });

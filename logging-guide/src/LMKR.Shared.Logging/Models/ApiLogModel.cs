@@ -10,6 +10,7 @@ namespace LMKR.Shared.Logging.Models
         public long Id { get; set; }
 
         public string ServiceName { get; set; } = string.Empty;
+        public string TargetTable { get; set; } = string.Empty;
         public string CorrelationId { get; set; } = string.Empty;
         public string? ClientId { get; set; }
 
