@@ -1,12 +1,15 @@
-using System.Diagnostics;
-using System.Text;
+using LMKR.Shared.Logging.Attributes;
 using LMKR.Shared.Logging.Configuration;
+using LMKR.Shared.Logging.Extensions;
 using LMKR.Shared.Logging.Models;
 using LMKR.Shared.Logging.Repositories;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc.Controllers;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.IO;
+using System.Diagnostics;
+using System.Text;
 
 namespace LMKR.Shared.Logging.Middleware
 {
@@ -42,8 +45,13 @@ namespace LMKR.Shared.Logging.Middleware
                 return;
             }
 
-            if (!_options.HttpRequestLogging && !_options.HttpResponseLogging)
+            var endpoint = context.GetEndpoint();
+            var disableLogging = endpoint.IsApiLoggingDisabled();
+
+
+            if (disableLogging || (!_options.HttpRequestLogging && !_options.HttpResponseLogging))
             {
+                _logger.LogDebug("API logging disabled for endpoint {Endpoint}", endpoint?.DisplayName);
                 await _next(context);
                 return;
             }
@@ -64,27 +72,19 @@ namespace LMKR.Shared.Logging.Middleware
 
             var stopwatch = Stopwatch.StartNew();
 
-            // A row must exist before it can be updated with the response, so
-            // we insert whenever EITHER flag is on. HttpRequestLogging just
-            // controls whether the request body is captured on that insert;
-            // HttpResponseLogging alone (request body capture off) still
-            // produces a row, it just starts empty and gets the response
-            // fields filled in below.
-            if (_options.HttpRequestLogging || _options.HttpResponseLogging)
+            try
             {
-                try
-                {
-                    model.RequestBody = (_options.HttpRequestLogging && _options.LogBody)
-                        ? await ReadRequestBodyAsync(context)
-                        : null;
-                    var response = await _repo.LogRequestAsync(model);
-                    model.Id = response.Id;
-                }
-                catch (Exception ex)
-                {
-                    _logger.LogError(ex, "Failed to log request for {Path}", context.Request.Path);
-                }
+                model.RequestBody = (_options.HttpRequestLogging && _options.LogBody)
+                    ? await ReadRequestBodyAsync(context)
+                    : null;
+                var response = await _repo.LogRequestAsync(model);
+                model.Id = response.Id;
             }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Failed to log request for {Path}", context.Request.Path);
+            }
+
 
             if (!_options.HttpResponseLogging)
             {

@@ -15,7 +15,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyDescriptionAttribute("Shared Serilog + request/response logging middleware for all LMKR microservices.")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+bfdb09812c4a5f839201a12ea9187f98a1d55013")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+873e901821acadf664a34196eca49b95d3818fe5")]
 [assembly: System.Reflection.AssemblyProductAttribute("LMKR.Shared.Logging")]
 [assembly: System.Reflection.AssemblyTitleAttribute("LMKR.Shared.Logging")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
