@@ -1,0 +1,59 @@
+global:
+  # Semantic Versioning Strategy
+  # MAJOR.MINOR.PATCH (e.g., 1.2.3)
+  # 
+  # MAJOR: Breaking changes or major feature releases
+  # MINOR: New backwards-compatible features
+  # PATCH: Bug fixes and hotfixes
+  #
+  major-version-bump-message: '^(\+semver:\s?major|breaking)'
+  minor-version-bump-message: '^(\+semver:\s?minor|feat)'
+  patch-version-bump-message: '^(\+semver:\s?patch|fix|hotfix)'
+
+  continuous-delivery-fallback-tag: ci
+  tag-prefix: 'v'
+
+  # Build metadata configuration
+  mode: Mainline
+  increment: Patch
+
+  # Commit message conventions:
+  # - Prefix commit message with '+semver:major' for breaking changes
+  # - Prefix commit message with '+semver:minor' for new features
+  # - Prefix commit message with '+semver:patch' or 'fix:' for bug fixes
+  # - Commits starting with 'feat:' automatically bump minor version
+  # - Commits starting with 'fix:' automatically bump patch version
+
+  # Version scheme configuration
+  commit-message-incrementing: Conventional
+
+branches:
+  main:
+    name: production
+    increment: Patch
+    prevent-increment-of-merged-branch-version: false
+    tag: ''
+    track-merge-target: false
+    regex: 'main'
+    source-branches: []
+
+  develop:
+    name: pre-release
+    increment: Minor
+    prevent-increment-of-merged-branch-version: false
+    tag: 'alpha'
+    track-merge-target: false
+    regex: 'dev.*|release.*'
+    source-branches:
+      - 'main'
+
+  pull-request:
+    name: pull-request
+    increment: Patch
+    prevent-increment-of-merged-branch-version: false
+    tag: 'pr'
+    track-merge-target: false
+    regex: 'pull.*|pr.*'
+    source-branches:
+      - 'main'
+      - 'develop'

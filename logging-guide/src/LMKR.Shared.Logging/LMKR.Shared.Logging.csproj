@@ -4,15 +4,33 @@
     <TargetFramework>net8.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
+
+    <!-- Package Identity & Metadata -->
     <PackageId>LMKR.Shared.Logging</PackageId>
+    <Version>0.0.0</Version>
     <Authors>LMKR - Platform Engineering</Authors>
-    <Description>Shared Serilog + request/response logging middleware for all LMKR microservices.</Description>
+    <Company>LMKR</Company>
+    <Description>Enterprise-grade shared logging library providing Serilog integration, request/response logging middleware, correlation ID propagation, and centralized API logging for all LMKR microservices.</Description>
+    <PackageTags>logging;serilog;middleware;correlation-id;api-logging;shared</PackageTags>
+    <PackageProjectUrl>https://github.com/lmkr2026-byte/SharedLogging</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/lmkr2026-byte/SharedLogging</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
+    <IncludeSymbols>true</IncludeSymbols>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+
+    <!-- Build Configuration -->
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <IsPackable>true</IsPackable>
+    <PackageReleaseNotes>See https://github.com/lmkr2026-byte/SharedLogging/blob/main/CHANGELOG.md for detailed release notes.</PackageReleaseNotes>
   </PropertyGroup>
 
   <ItemGroup>
     <!-- ASP.NET Core middleware contracts -->
     <FrameworkReference Include="Microsoft.AspNetCore.App" />
+    <None Include="logging-guide\.github\workflows\auto-merge-dependabot.yml" />
     <PackageReference Include="FluentValidation" Version="12.1.1" />
     <PackageReference Include="Grpc.Core" Version="2.46.6" />
 
@@ -32,6 +50,10 @@
 
     <!-- Buffered request/response body capture without excess GC pressure -->
     <PackageReference Include="Microsoft.IO.RecyclableMemoryStream" Version="3.0.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="build\" />
   </ItemGroup>
 
 </Project>

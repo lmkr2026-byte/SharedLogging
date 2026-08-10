@@ -1,0 +1,157 @@
+# azure-pipelines.yml
+# Enterprise-Grade CI/CD for LMKR.Shared.Logging
+#
+# Pipeline flow:
+#   1. Trigger on merge to main
+#   2. .NET 8 SDK setup
+#   3. GitVersion determines semantic version based on commits (no manual bumps)
+#   4. Restore, Build, Test (validate quality)
+#   5. Pack signed NuGet package with version
+#   6. Publish to Azure Artifacts LMKR-Shared-Packages feed
+#   7. Consuming services auto-notified via Dependabot for version updates
+#
+# Automatic Version Bumping:
+#   - Patch (1.2.3 → 1.2.4): Commit message starting with "fix:" or "+semver:patch"
+#   - Minor (1.2.3 → 1.3.0): Commit message starting with "feat:" or "+semver:minor"
+#   - Major (1.2.3 → 2.0.0): Commit message with "+semver:major" or "BREAKING CHANGE:" footer
+#
+# For rollback: Manually pull an older version from the Azure Artifacts feed UI
+# and update consuming service PackageReference versions back to previous release.
+
+trigger:
+  branches:
+    include:
+      - main
+  paths:
+    include:
+      - 'src/**'
+      - 'GitVersion.yml'
+      - 'pipeline/**'
+      - '.gitignore'
+
+pr:
+  - main
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+variables:
+  buildConfiguration: 'Release'
+  feedName: 'LMKR-Shared-Packages'
+  packageOutputDir: '$(Build.ArtifactStagingDirectory)'
+
+stages:
+  - stage: Build
+    displayName: 'Build & Test'
+    jobs:
+      - job: BuildPackage
+        displayName: 'Build, test, and pack'
+        steps:
+          - task: UseDotNet@2
+            displayName: 'Use .NET 8 SDK'
+            inputs:
+              packageType: 'sdk'
+              version: '8.x'
+
+          - task: gitversion/setup@0
+            displayName: 'Install GitVersion'
+            inputs:
+              versionSpec: '5.x'
+
+          - task: gitversion/execute@0
+            displayName: 'Determine version from commit history'
+            env:
+              ACTIONS_STEP_DEBUG: false
+
+          - script: |
+              echo "##[section]Calculated Version: $(GitVersion.SemVer)"
+              echo "##[section]Full Version: $(GitVersion.FullSemVer)"
+              echo "##[section]NuGet Version: $(GitVersion.NuGetVersion)"
+            displayName: 'Display version information'
+
+          - task: DotNetCoreCLI@2
+            displayName: 'Restore dependencies'
+            inputs:
+              command: 'restore'
+              projects: 'src/LMKR.Shared.Logging/LMKR.Shared.Logging.csproj'
+              feedsToUse: 'select'
+              vstsFeed: '$(feedName)'
+
+          - task: DotNetCoreCLI@2
+            displayName: 'Build (Release)'
+            inputs:
+              command: 'build'
+              projects: 'src/LMKR.Shared.Logging/LMKR.Shared.Logging.csproj'
+              arguments: '--configuration $(buildConfiguration) --no-restore'
+
+          # Add test task here if unit tests are added to the repo:
+          # - task: DotNetCoreCLI@2
+          #   displayName: 'Run unit tests'
+          #   inputs:
+          #     command: 'test'
+          #     projects: 'tests/**/*.csproj'
+          #     arguments: '--configuration $(buildConfiguration) --no-build --logger trx --collect:"XPlat Code Coverage"'
+
+          - task: DotNetCoreCLI@2
+            displayName: 'Pack NuGet package'
+            inputs:
+              command: 'pack'
+              packagesToPack: 'src/LMKR.Shared.Logging/LMKR.Shared.Logging.csproj'
+              configuration: '$(buildConfiguration)'
+              nobuild: true
+              outputDir: '$(packageOutputDir)'
+              versioningScheme: 'byEnvVar'
+              versionEnvVar: 'GitVersion.SemVer'
+
+          - script: |
+              echo "##[section]Package Files:"
+              ls -lh $(packageOutputDir)/*.nupkg
+            displayName: 'Display package information'
+
+          - task: PublishBuildArtifacts@1
+            displayName: 'Publish package artifacts'
+            inputs:
+              pathToPublish: '$(packageOutputDir)'
+              artifactName: 'packages'
+
+  - stage: PublishToFeed
+    displayName: 'Publish to Azure Artifacts'
+    dependsOn: Build
+    condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/main'))
+    jobs:
+      - deployment: PublishPackage
+        displayName: 'Push to LMKR-Shared-Packages feed'
+        environment: 'Production'
+        strategy:
+          runOnce:
+            deploy:
+              steps:
+                - task: DownloadBuildArtifacts@1
+                  displayName: 'Download built packages'
+                  inputs:
+                    artifactName: 'packages'
+                    downloadPath: '$(Pipeline.Workspace)'
+
+                - task: UseDotNet@2
+                  displayName: 'Use .NET 8 SDK'
+                  inputs:
+                    packageType: 'sdk'
+                    version: '8.x'
+
+                - task: NuGetAuthenticate@1
+                  displayName: 'Authenticate to Azure Artifacts'
+
+                - task: DotNetCoreCLI@2
+                  displayName: 'Push package to feed'
+                  inputs:
+                    command: 'push'
+                    packagesToPush: '$(Pipeline.Workspace)/packages/*.nupkg;!$(Pipeline.Workspace)/packages/*.symbols.nupkg'
+                    nuGetFeedType: 'internal'
+                    publishVstsFeed: '$(feedName)'
+                    allowPackageConflicts: false
+
+                - script: |
+                    echo "##[section]Package published successfully!"
+                    echo "##[section]Feed: $(feedName)"
+                    echo "##[section]Consuming services should receive Dependabot notifications"
+                  displayName: 'Post-deployment notification'

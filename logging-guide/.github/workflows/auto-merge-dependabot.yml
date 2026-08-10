@@ -1,0 +1,230 @@
+name: Auto-approve and merge Dependabot updates
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+  pull_request_review:
+    types: [submitted]
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  # This workflow runs in the CONSUMING SERVICES (not this repo)
+  # It provides guidance for auto-merging Dependabot PRs for LMKR.Shared.Logging updates
+
+  # USAGE in consuming service repos:
+  # 1. Copy this file to .github/workflows/auto-merge-dependabot.yml
+  # 2. Enable Dependabot in GitHub: Settings → Code security & analysis → Dependabot
+  # 3. Dependabot will create PRs automatically
+  # 4. This workflow will auto-approve and merge patch/minor versions
+  # 5. Major versions require manual review
+
+  dependabot-auto-merge:
+    runs-on: ubuntu-latest
+
+    # Only run on Dependabot PRs
+    if: github.actor == 'dependabot[bot]'
+
+    steps:
+      - name: 'Checkout repository'
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: 'Dependabot metadata'
+        id: metadata
+        uses: dependabot/fetch-metadata@v1
+        with:
+          github-token: "${{ secrets.GITHUB_TOKEN }}"
+
+      - name: 'Detect LMKR.Shared.Logging version bump type'
+        id: version-type
+        run: |
+          if echo "${{ steps.metadata.outputs.dependency-names }}" | grep -q "LMKR.Shared.Logging"; then
+            OLD_VERSION=$(echo "${{ steps.metadata.outputs.previous-version }}" | grep -o '[0-9]\+\.[0-9]\+\.[0-9]\+' | head -1)
+            NEW_VERSION=$(echo "${{ steps.metadata.outputs.new-version }}" | grep -o '[0-9]\+\.[0-9]\+\.[0-9]\+' | head -1)
+
+            if [ -z "$OLD_VERSION" ]; then
+              echo "bump-type=unknown" >> $GITHUB_OUTPUT
+              exit 0
+            fi
+
+            OLD_MAJOR=$(echo $OLD_VERSION | cut -d. -f1)
+            OLD_MINOR=$(echo $OLD_VERSION | cut -d. -f2)
+            OLD_PATCH=$(echo $OLD_VERSION | cut -d. -f3)
+
+            NEW_MAJOR=$(echo $NEW_VERSION | cut -d. -f1)
+            NEW_MINOR=$(echo $NEW_VERSION | cut -d. -f2)
+            NEW_PATCH=$(echo $NEW_VERSION | cut -d. -f3)
+
+            if [ "$OLD_MAJOR" != "$NEW_MAJOR" ]; then
+              echo "bump-type=major" >> $GITHUB_OUTPUT
+              echo "is-breaking-change=true" >> $GITHUB_OUTPUT
+            elif [ "$OLD_MINOR" != "$NEW_MINOR" ]; then
+              echo "bump-type=minor" >> $GITHUB_OUTPUT
+              echo "is-breaking-change=false" >> $GITHUB_OUTPUT
+            else
+              echo "bump-type=patch" >> $GITHUB_OUTPUT
+              echo "is-breaking-change=false" >> $GITHUB_OUTPUT
+            fi
+
+            echo "old-version=$OLD_VERSION" >> $GITHUB_OUTPUT
+            echo "new-version=$NEW_VERSION" >> $GITHUB_OUTPUT
+          fi
+
+      - name: 'Auto-approve patch/minor updates'
+        if: |
+          steps.version-type.outputs.is-breaking-change == 'false' && 
+          steps.metadata.outputs.dependency-names == 'LMKR.Shared.Logging'
+        run: |
+          echo "Auto-approving ${{ steps.version-type.outputs.bump-type }} version update:"
+          echo "  ${{ steps.version-type.outputs.old-version }} → ${{ steps.version-type.outputs.new-version }}"
+
+      - name: 'Flag major version for manual review'
+        if: |
+          steps.version-type.outputs.is-breaking-change == 'true' && 
+          steps.metadata.outputs.dependency-names == 'LMKR.Shared.Logging'
+        run: |
+          echo "⚠️  MAJOR version update detected - requires manual review:"
+          echo "  ${{ steps.version-type.outputs.old-version }} → ${{ steps.version-type.outputs.new-version }}"
+          echo ""
+          echo "Check the LMKR.Shared.Logging CHANGELOG.md for breaking changes:"
+          echo "https://github.com/lmkr2026-byte/SharedLogging/blob/main/CHANGELOG.md"
+
+      - name: 'Approve PR (non-breaking changes only)'
+        if: |
+          steps.version-type.outputs.is-breaking-change == 'false' && 
+          steps.metadata.outputs.dependency-names == 'LMKR.Shared.Logging'
+        uses: actions/github-script@v6
+        with:
+          script: |
+            github.rest.pulls.createReview({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pull_number: context.issue.number,
+              event: 'APPROVE',
+              body: `Auto-approved: ${{ steps.version-type.outputs.bump-type }} version update (backward compatible)`
+            })
+
+      - name: 'Merge PR (non-breaking changes only)'
+        if: |
+          steps.version-type.outputs.is-breaking-change == 'false' && 
+          steps.metadata.outputs.dependency-names == 'LMKR.Shared.Logging'
+        uses: actions/github-script@v6
+        with:
+          script: |
+            github.rest.pulls.merge({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pull_number: context.issue.number,
+              merge_method: 'squash',
+              commit_title: `chore: update LMKR.Shared.Logging to ${{ steps.version-type.outputs.new-version }}`
+            })
+
+---
+
+# HOW THIS WORKFLOW HELPS YOUR CONSUMING MICROSERVICES
+
+## For Consuming Service Teams:
+
+### Setup (One-time, per service repo)
+
+1. **Enable Dependabot in GitHub Settings:**
+   - Go to: Settings → Code security & analysis → Dependabot
+   - Enable "Dependabot alerts", "Dependabot security updates", "Dependabot version updates"
+
+2. **Create `.github/dependabot.yml` in the service repo:**
+
+   ```yaml
+   version: 2
+   updates:
+     - package-ecosystem: "nuget"
+       directory: "/"
+       schedule:
+         interval: "weekly"
+         day: "monday"
+         time: "03:00"
+       reviewers:
+         - "platform-team"
+       labels:
+         - "dependencies"
+         - "nuget"
+       commit-message:
+         prefix: "chore"
+         include: "scope"
+       pull-request-branch-name:
+         separator: "/"
+   ```
+
+3. **Copy this workflow to `.github/workflows/auto-merge-dependabot.yml`** in the service repo
+
+4. **Grant GitHub Actions permissions:**
+   - Settings → Actions → General → Workflow permissions
+   - Select: "Read and write permissions"
+   - Check: "Allow GitHub Actions to create and approve pull requests"
+
+### Automatic Update Flow
+
+1. **Dependabot scans** for outdated packages (weekly by default)
+2. **Creates a PR** when LMKR.Shared.Logging has new versions
+3. **This workflow runs** and detects the version bump type:
+   - ✅ **Patch/Minor (backward compatible):** Auto-approved and merged
+   - ⚠️ **Major (breaking):** Flagged for manual review
+4. **Your service's CI/CD** automatically rebuilds with the new version
+
+### Review Checklist for Major Version Updates
+
+When a Major version PR is created (requires manual merge):
+
+- [ ] Read CHANGELOG.md in [SharedLogging repo](https://github.com/lmkr2026-byte/SharedLogging/blob/main/CHANGELOG.md)
+- [ ] Check "BREAKING CHANGES" section
+- [ ] Review required code changes in your service
+- [ ] Test locally: `dotnet build && dotnet test`
+- [ ] Run integration tests if available
+- [ ] Approve and merge the PR
+- [ ] Monitor your service's deployment/build for any issues
+
+### Manual Update (if Dependabot is disabled)
+
+If your service doesn't have Dependabot enabled, manually update:
+
+1. Edit your `.csproj`:
+   ```xml
+   <PackageReference Include="LMKR.Shared.Logging" Version="1.1.0" />
+   ```
+
+2. Create and merge a PR with message:
+   ```
+   chore: update LMKR.Shared.Logging to 1.1.0
+   ```
+
+3. Your CI/CD rebuilds automatically
+
+## Troubleshooting
+
+### PR not auto-merging?
+
+1. Check GitHub Actions logs: Actions → auto-merge-dependabot → Latest run
+2. Verify workflow file is in `.github/workflows/auto-merge-dependabot.yml`
+3. Ensure branch protection rules don't require more reviews
+
+### Dependabot not creating PRs?
+
+1. Settings → Code security & analysis → Check Dependabot is enabled
+2. Verify `.github/dependabot.yml` exists and is valid YAML
+3. Check Dependabot logs: Settings → Dependabot → Recent update checks
+
+### Can't approve PRs?
+
+1. Settings → Actions → General
+2. Workflow permissions must be "Read and write"
+3. "Allow GitHub Actions to create and approve pull requests" must be checked
+
+## References
+
+- [GitHub Dependabot Documentation](https://docs.github.com/en/code-security/dependabot)
+- [GitHub Actions - GitHub Script](https://github.com/actions/github-script)
+- [LMKR.Shared.Logging Release Notes](https://github.com/lmkr2026-byte/SharedLogging/blob/main/CHANGELOG.md)
+- [Semantic Versioning](https://semver.org/)
