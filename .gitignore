@@ -1,6 +1,84 @@
-﻿################################################################################
-# This .gitignore file was automatically created by Microsoft(R) Visual Studio.
-################################################################################
+﻿# Build folders
+[Bb]in/
+[Oo]bj/
 
-/logging-guide/sql
-/logging-guide/src/LMKR.Shared.Logging/.vs
+# Visual Studio
+.vs/
+.vscode/
+
+# Rider
+.idea/
+
+# User-specific files
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+
+# ReSharper
+_ReSharper*/
+*.ReSharper
+
+# NuGet
+packages/
+*.nupkg
+
+# Logs
+*.log
+logs/
+
+# Test Results
+TestResults/
+
+# Publish Output
+publish/
+Publish/
+
+# IIS Express
+/.vs/config/
+
+# Azure
+*.publishsettings
+
+# Rider / JetBrains
+.idea/
+
+# ASP.NET Scaffolding
+ScaffoldingReadMe.txt
+
+# Entity Framework
+*.dbmdl
+
+# Generated files
+Generated/
+
+# Docker
+docker-compose.override.yml
+
+# Coverage Reports
+coverage/
+coverage-results/
+*.coverage
+*.coveragexml
+
+# OS Files
+.DS_Store
+Thumbs.db
+
+# Temporary files
+*.tmp
+*.temp
+
+# Secrets
+appsettings.Development.json
+appsettings.Local.json
+secrets.json
+
+# Node Modules (Angular/React frontend)
+node_modules/
+dist/
+
+# NPM Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
