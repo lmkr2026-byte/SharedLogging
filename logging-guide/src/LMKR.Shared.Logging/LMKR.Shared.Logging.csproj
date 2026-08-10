@@ -4,12 +4,6 @@
     <TargetFramework>net8.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
-
-    <!-- NuGet package metadata: every merge to main on this repo bumps this
-         version (see /pipeline/azure-pipelines.yml) and publishes a new
-         package to the internal Azure Artifacts feed. Every one of the 29
-         API repos then just bumps its <PackageReference Version="x.y.z" />
-         to pick up the change - no code is copy/pasted between repos. -->
     <PackageId>LMKR.Shared.Logging</PackageId>
     <Authors>LMKR - Platform Engineering</Authors>
     <Description>Shared Serilog + request/response logging middleware for all LMKR microservices.</Description>
@@ -27,10 +21,6 @@
     <PackageReference Include="Serilog.Settings.Configuration" Version="8.0.0" />
     <PackageReference Include="Serilog.Enrichers.Environment" Version="2.3.0" />
     <PackageReference Include="Serilog.Enrichers.Thread" Version="3.1.0" />
-
-    <!-- Every sink is bundled here so a consuming service can switch its
-         viewer purely via appsettings.json - no package reference or code
-         change needed in the 29 API repos. -->
     <PackageReference Include="Serilog.Sinks.Seq" Version="8.0.0" />
     <PackageReference Include="Serilog.Sinks.Elasticsearch" Version="10.0.0" />
     <PackageReference Include="Serilog.Sinks.ApplicationInsights" Version="4.0.0" />
