@@ -1,6 +1,7 @@
 using LMKR.Shared.Logging.Configuration;
 using LMKR.Shared.Logging.Middleware;
 using Microsoft.AspNetCore.Builder;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 
@@ -16,14 +17,17 @@ namespace LMKR.Shared.Logging.Extensions
         /// </summary>
         public static IApplicationBuilder UseSharedLogging(this IApplicationBuilder app)
         {
-            var options = app.ApplicationServices.GetRequiredService<IOptions<SharedLoggingOptions>>().Value;
+            var configuration = app.ApplicationServices.GetRequiredService<IConfiguration>();
+
             app.UseMiddleware<CorrelationIdMiddleware>();
-            // Enable custom request/response logging
-            //if (options.HttpRequestLogging || options.HttpResponseLogging)
-            //{
-            //    app.UseMiddleware<RequestResponseLoggingMiddleware>();
-            //}
-            app.UseMiddleware<RequestResponseLoggingMiddleware>();
+            var loggingOptions = app.ApplicationServices
+           .GetRequiredService<IOptions<SharedLoggingOptions>>()
+           .Value;
+            //Enable custom request / response logging
+            if (loggingOptions.HttpRequestLogging || loggingOptions.HttpResponseLogging)
+            {
+                app.UseMiddleware<RequestResponseLoggingMiddleware>();
+            }
             return app;
         }
     }
