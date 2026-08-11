@@ -30,6 +30,12 @@ public static class SerilogExtensions
                 .Enrich.WithMachineName()
                 .Enrich.WithThreadId();
 
+            //-------------------------------------
+            // Console
+            //-------------------------------------
+
+            loggerConfig.WriteTo.Console( outputTemplate: "[{Timestamp:HH:mm:ss} {Level:u3}] [{ServiceName}] {Message:lj}{NewLine}{Exception}");
+
             //--------------------------------------------------
             // Service-specific File Logs
             //--------------------------------------------------
