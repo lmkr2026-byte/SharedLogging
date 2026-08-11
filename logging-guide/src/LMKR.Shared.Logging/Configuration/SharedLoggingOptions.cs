@@ -39,7 +39,7 @@ namespace LMKR.Shared.Logging.Configuration
 
         public bool EnableFileLogging { get; set; } = true;
 
-        public string LogRootPath { get; set; } = "Logs";
+        public string LogRootPath { get; set; } = "/data/Logs";
 
         public bool EnableSeq { get; set; } = false;
     }
