@@ -10,9 +10,18 @@ public static class SerilogExtensions
 {
     public static WebApplicationBuilder AddSharedSerilog(this WebApplicationBuilder builder)
     {
+        //--------------------------------------------------
+        // logging (configuration)
+        //--------------------------------------------------
+
         var loggingOptions = builder.Configuration.GetSection(SharedLoggingOptions.SectionName).Get<SharedLoggingOptions>() ?? new SharedLoggingOptions();
 
+        //--------------------------------------------------
+        // Seq (configuration)
+        //--------------------------------------------------
         var seqOptions = builder.Configuration.GetSection(SeqOptions.SectionName).Get<SeqOptions>() ?? new SeqOptions();
+
+
         builder.Host.UseSerilog((context, services, loggerConfig) =>
         {
             loggerConfig.ReadFrom.Configuration(context.Configuration)
