@@ -20,6 +20,7 @@ namespace LMKR.Shared.Logging.Extensions
             var configuration = app.ApplicationServices.GetRequiredService<IConfiguration>();
 
             app.UseMiddleware<CorrelationIdMiddleware>();
+            app.UseMiddleware<ExceptionHandlingMiddleware>();
             var loggingOptions = app.ApplicationServices
            .GetRequiredService<IOptions<SharedLoggingOptions>>()
            .Value;

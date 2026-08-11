@@ -8,8 +8,14 @@ namespace LMKR.Shared.Logging.Extensions;
 
 public static class SerilogExtensions
 {
+    /// <summary>
+    ///
+    /// var builder = WebApplication.CreateBuilder(args);
+    ///
+    /// builder.AddSharedSerilog();
     public static WebApplicationBuilder AddSharedSerilog(this WebApplicationBuilder builder)
     {
+        Console.WriteLine("========== AddSharedSerilog CALLED ==========");
         //--------------------------------------------------
         // logging (configuration)
         //--------------------------------------------------
