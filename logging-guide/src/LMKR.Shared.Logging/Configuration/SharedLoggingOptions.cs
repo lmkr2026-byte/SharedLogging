@@ -33,8 +33,14 @@ namespace LMKR.Shared.Logging.Configuration
 
         /// <summary>Max characters of request/response body captured before
         /// truncation, to protect the logging DB from oversized payloads.</summary>
-        public int MaxBodyLength { get; set; } = 8000;
+        public int MaxBodyLength { get; set; } = 10000;
 
         public bool EnableSerilog { get; set; } = true;
+
+        public bool EnableFileLogging { get; set; } = true;
+
+        public string LogRootPath { get; set; } = "Logs";
+
+        public bool EnableSeq { get; set; } = false;
     }
 }
