@@ -11,6 +11,7 @@ public static class SerilogExtensions
     public static WebApplicationBuilder AddSharedSerilog(this WebApplicationBuilder builder)
     {
         var loggingOptions = builder.Configuration.GetSection(SharedLoggingOptions.SectionName).Get<SharedLoggingOptions>() ?? new SharedLoggingOptions();
+
         var seqOptions = builder.Configuration.GetSection(SeqOptions.SectionName).Get<SeqOptions>() ?? new SeqOptions();
         builder.Host.UseSerilog((context, services, loggerConfig) =>
         {
@@ -20,6 +21,9 @@ public static class SerilogExtensions
                 .Enrich.WithMachineName()
                 .Enrich.WithThreadId();
 
+            //--------------------------------------------------
+            // Service-specific File Logs
+            //--------------------------------------------------
             if (loggingOptions.EnableFileLogging)
             {
                 var serviceFolder = Path.Combine(loggingOptions.LogRootPath, loggingOptions.ServiceName);
@@ -41,9 +45,12 @@ public static class SerilogExtensions
                     rollOnFileSizeLimit: true);
             }
 
+            //--------------------------------------------------
+            // Seq (optional)
+            //--------------------------------------------------
             if (loggingOptions.EnableSeq && !string.IsNullOrWhiteSpace(seqOptions.Url))
             {
-                loggerConfig.WriteTo.Seq(serverUrl: seqOptions.Url, apiKey: seqOptions.ApiKey);
+                loggerConfig.WriteTo.Seq( serverUrl: seqOptions.Url, apiKey: string.IsNullOrWhiteSpace(seqOptions.ApiKey) ? null: seqOptions.ApiKey);
             }
         });
 
