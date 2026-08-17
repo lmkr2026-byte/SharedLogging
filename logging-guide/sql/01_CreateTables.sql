@@ -54,8 +54,8 @@ BEGIN
         IsActive      BIT            NOT NULL DEFAULT (1)
     );
 
-    CREATE UNIQUE INDEX UX_LogRoutingConfig_Service_Category
-        ON dbo.LogRoutingConfig (ServiceName, ISNULL(LogCategory, N''));
+	CREATE UNIQUE INDEX UX_LogRoutingConfig_Service_Category
+	ON dbo.LogRoutingConfig (ServiceName, LogCategory);
 END
 GO
 
